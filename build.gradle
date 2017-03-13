@@ -8,8 +8,8 @@ buildscript {
 
 plugins {
     id 'com.gradle.build-scan' version '1.6'
-    id "com.jfrog.bintray" version '1.7.3'
     id 'nebula.maven-publish' version '4.9.1'
+    id 'nebula.nebula-bintray' version '3.5.2'
 }
 
 apply plugin: 'groovy'
@@ -47,21 +47,28 @@ buildScan {
 bintray {
     user = project.hasProperty('bintrayUsername') ? project.bintrayUsername : System.getenv('BINTRAY_USERNAME')
     key = project.hasProperty('bintrayApiKey') ? project.bintrayApiKey : System.getenv('BINTRAY_API_KEY')
+
+    publications = [ 'nebula' ]
+
+    dryRun = false
+    publish = true
+
     pkg {
-        repo = 'vuzoll'
+        userOrg = 'vuzoll'
+        repo = 'vuzoll-maven'
         name = 'vuzoll-tasks-manager-starter'
         licenses = [ 'Apache-2.0' ]
         vcsUrl = 'https://github.com/vuzoll/vuzoll-tasks-manager-starter.git'
+
+        version {
+            name = project.version
+        }
     }
 }
 
 publishing {
     publications {
         nebula(MavenPublication) {
-        }
-
-        bintray(MavenPublication) {
-            from components.java
         }
     }
 }
