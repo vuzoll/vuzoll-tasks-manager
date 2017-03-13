@@ -22,7 +22,7 @@ dependencyRecommendations {
 }
 
 group = 'com.github.vuzoll'
-version = '0.1-SNAPSHOT'
+version = '0.1'
 
 repositories {
     jcenter()
