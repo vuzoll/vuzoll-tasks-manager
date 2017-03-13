@@ -6,4 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 class TasksManagerProperties {
 
     String executorQualifier = 'default'
+
+    String updateDelay = '30min'
 }

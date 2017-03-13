@@ -114,13 +114,13 @@ class JobsService {
         return job
     }
 
-    void updateJobStatus(Job job, String updateDelay, Map params) {
+    void updateJobStatus(Job job, Map params) {
         job = jobRepository.findOne job.id
 
         String message = params.message
         boolean publishRequired = params.publishRequired ?: false
 
-        if (publishRequired || job.messageLog == null || job.messageLog.empty || System.currentTimeMillis() - job.messageLog.timestamp.max() > fromDurationString(updateDelay)) {
+        if (publishRequired || job.messageLog == null || job.messageLog.empty || System.currentTimeMillis() - job.messageLog.timestamp.max() > fromDurationString(tasksManagerProperties.updateDelay)) {
             log.info "${jobLogPrefix(job.id)} ${message}"
             log.info "${jobLogPrefix(job.id)} already last ${toDurationString(System.currentTimeMillis() - job.startTimestamp)}"
 

@@ -10,10 +10,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.task.SimpleAsyncTaskExecutor
 import org.springframework.core.task.TaskExecutor
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 
 @Configuration
 @AutoConfigureAfter([ MongoAutoConfiguration, MongoDataAutoConfiguration, MongoRepositoriesAutoConfiguration ])
 @EnableConfigurationProperties(TasksManagerProperties)
+@EnableMongoRepositories('com.github.vuzoll.tasks.repository')
 class TasksManagerAutoConfiguration {
 
     @Autowired

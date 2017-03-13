@@ -11,9 +11,7 @@ abstract class DurableJob {
         this.finished = false
     }
 
-    void initSelf(Closure statusUpdater) {
-        // do nothing by default
-    }
+    abstract void initSelf(Closure statusUpdater)
 
     abstract void doSomething(Closure statusUpdater)
 
