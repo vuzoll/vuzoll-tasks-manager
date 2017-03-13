@@ -6,3 +6,11 @@ Spring Boot starter that adds task management functionality.
 == Travis job
 
 image:https://travis-ci.org/vuzoll/vuzoll-tasks-manager-starter.svg?branch=develop["Travis job", link="https://travis-ci.org/vuzoll/vuzoll-tasks-manager-starter"]
+
+== Code coverage
+
+image:https://coveralls.io/repos/github/vuzoll/vuzoll-tasks-manager-starter/badge.svg?branch=develop["Coverage Status", link="https://coveralls.io/github/vuzoll/vuzoll-tasks-manager-starter?branch=develop"]
+
+== Bintray repository
+
+https://bintray.com/vuzoll/vuzoll-maven/vuzoll-tasks-manager-starter
