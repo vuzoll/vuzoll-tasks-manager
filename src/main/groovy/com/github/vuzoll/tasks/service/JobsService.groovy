@@ -5,9 +5,7 @@ import com.github.vuzoll.tasks.domain.Job
 import com.github.vuzoll.tasks.domain.JobLog
 import com.github.vuzoll.tasks.domain.JobStatus
 import com.github.vuzoll.tasks.repository.JobRepository
-import groovy.transform.CompileDynamic
 import groovy.transform.Memoized
-import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.joda.time.Period
 import org.joda.time.format.PeriodFormatter
