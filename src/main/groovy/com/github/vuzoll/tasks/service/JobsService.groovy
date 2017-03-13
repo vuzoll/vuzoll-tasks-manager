@@ -24,7 +24,6 @@ import java.time.LocalDateTime
 
 @Service
 @Slf4j
-@TypeChecked
 class JobsService {
 
     static final PeriodFormatter TIME_LIMIT_FORMAT = new PeriodFormatterBuilder()
@@ -117,7 +116,6 @@ class JobsService {
         return job
     }
 
-    @CompileDynamic
     void updateJobStatus(Job job, String updateDelay, String message) {
         job = jobRepository.findOne job.id
 
