@@ -114,10 +114,13 @@ class JobsService {
         return job
     }
 
-    void updateJobStatus(Job job, String updateDelay, String message) {
+    void updateJobStatus(Job job, String updateDelay, Map params) {
         job = jobRepository.findOne job.id
 
-        if (job.messageLog == null || job.messageLog.empty || System.currentTimeMillis() - job.messageLog.timestamp.max() > fromDurationString(updateDelay)) {
+        String message = params.message
+        boolean publishRequired = params.publishRequired ?: false
+
+        if (publishRequired || job.messageLog == null || job.messageLog.empty || System.currentTimeMillis() - job.messageLog.timestamp.max() > fromDurationString(updateDelay)) {
             log.info "${jobLogPrefix(job.id)} ${message}"
             log.info "${jobLogPrefix(job.id)} already last ${toDurationString(System.currentTimeMillis() - job.startTimestamp)}"
 
@@ -146,6 +149,8 @@ class JobsService {
             job.timeTaken = '0sec'
             job.status = JobStatus.RUNNING.toString()
             job = jobRepository.save job
+
+            durableJob.initSelf(this.&updateJobStatus.curry(job))
 
             while (true) {
                 log.info "${jobLogPrefix(job.id)} already last ${toDurationString(System.currentTimeMillis() - job.startTimestamp)}"
