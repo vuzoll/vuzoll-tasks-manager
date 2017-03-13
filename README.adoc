@@ -2,3 +2,7 @@
 :linkattrs:
 
 Spring Boot starter that adds task management functionality.
+
+== Travis job
+
+image:https://travis-ci.org/vuzoll/vuzoll-tasks-manager-starter.svg?branch=develop["Travis job", link="https://travis-ci.org/vuzoll/vuzoll-tasks-manager-starter"]

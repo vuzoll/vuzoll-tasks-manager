@@ -16,6 +16,11 @@ dependencies {
     compile 'org.codehaus.groovy:groovy-all'
 
     compile 'org.springframework.boot:spring-boot-autoconfigure'
+
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.springframework.data:spring-data-mongodb'
+
+    compile 'joda-time:joda-time'
 }
 
 buildScan {
