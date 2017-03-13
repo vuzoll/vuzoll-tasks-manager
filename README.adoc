@@ -1,0 +1,4 @@
+= vuzoll-tasks-manager-starter
+:linkattrs:
+
+Spring Boot starter that adds task management functionality.
