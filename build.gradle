@@ -8,6 +8,7 @@ buildscript {
 
 plugins {
     id 'com.gradle.build-scan' version '1.4'
+    id 'nebula.maven-publish' version '4.9.1'
 }
 
 apply plugin: 'groovy'
@@ -19,6 +20,7 @@ dependencyRecommendations {
     mavenBom module: 'org.springframework.boot:spring-boot-dependencies:1.5.2.RELEASE'
 }
 
+group = 'com.github.vuzoll'
 version = '0.1-SNAPSHOT'
 
 repositories {
@@ -39,4 +41,11 @@ dependencies {
 buildScan {
     licenseAgreementUrl = 'https://gradle.com/terms-of-service'
     licenseAgree = 'yes'
+}
+
+publishing {
+    publications {
+        nebula(MavenPublication) {
+        }
+    }
 }
