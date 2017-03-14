@@ -35,6 +35,8 @@ class JobsService {
 
     String updateDelay
 
+    Integer maxMessageLogCount
+
     @PostConstruct
     void markAbortedJobs() {
         log.info "Marking all aborted jobs for executor [${executorQualifier}]..."
@@ -120,8 +122,9 @@ class JobsService {
         String message = params.message
         boolean publishRequired = params.publishRequired ?: false
 
+        log.info "${jobLogPrefix(job.id)} ${message}"
+
         if (publishRequired || job.messageLog == null || job.messageLog.empty || System.currentTimeMillis() - job.messageLog.timestamp.max() > fromDurationString(updateDelay)) {
-            log.info "${jobLogPrefix(job.id)} ${message}"
             log.info "${jobLogPrefix(job.id)} already last ${toDurationString(System.currentTimeMillis() - job.startTimestamp)}"
 
             JobLog jobLog = new JobLog()
@@ -132,11 +135,9 @@ class JobsService {
             job.lastMessage = message
             job.lastUpdateTime = jobLog.time
             job.timeTaken = toDurationString(jobLog.timestamp - job.startTimestamp)
-            job.messageLog = job.messageLog == null ? [ jobLog ] : job.messageLog + jobLog
+            job.messageLog = (job.messageLog == null ? [ jobLog ] : job.messageLog + jobLog).sort({ -it.timestamp }).take(maxMessageLogCount)
 
             jobRepository.save job
-        } else {
-            log.debug "${jobLogPrefix(job.id)} ${message}"
         }
     }
 
