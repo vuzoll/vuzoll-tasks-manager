@@ -8,4 +8,6 @@ class TasksManagerProperties {
     String executorQualifier = 'default'
 
     String updateDelay = '30min'
+
+    Integer maxMessageLogCount = 20
 }

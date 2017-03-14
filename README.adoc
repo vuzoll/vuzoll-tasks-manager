@@ -9,7 +9,7 @@ image:https://travis-ci.org/vuzoll/vuzoll-tasks-manager-starter.svg?branch=devel
 
 == Code coverage
 
-image:https://coveralls.io/repos/github/vuzoll/vuzoll-tasks-manager-starter/badge.svg?branch=develop["Coverage Status", link="https://coveralls.io/github/vuzoll/vuzoll-tasks-manager-starter?branch=develop"]
+image:https://codecov.io/gh/vuzoll/vuzoll-tasks-manager-starter/branch/develop/graph/badge.svg["Code coverage", link="https://codecov.io/gh/vuzoll/vuzoll-tasks-manager-starter"]
 
 == Bintray repository
 

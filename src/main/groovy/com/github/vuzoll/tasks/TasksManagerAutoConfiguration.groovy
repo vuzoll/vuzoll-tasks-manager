@@ -37,7 +37,8 @@ class TasksManagerAutoConfiguration {
                 jobRepository: jobRepository,
                 taskExecutor: taskExecutor,
                 executorQualifier: tasksManagerProperties.executorQualifier,
-                updateDelay: tasksManagerProperties.updateDelay
+                updateDelay: tasksManagerProperties.updateDelay,
+                maxMessageLogCount: tasksManagerProperties.maxMessageLogCount
         )
     }
 
