@@ -3,7 +3,7 @@ package com.github.vuzoll.tasks.controller
 import com.github.vuzoll.tasks.domain.Job
 import com.github.vuzoll.tasks.service.JobsService
 import groovy.util.logging.Slf4j
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseBody
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController
 @Slf4j
 class JobsController {
 
-    @Autowired
     JobsService jobsService
 
     @GetMapping(path = '/job/{jobId}')
@@ -80,5 +79,31 @@ class JobsController {
         }
 
         return allJobs
+    }
+
+    @DeleteMapping(path = '/job/{jobId}')
+    @ResponseBody Job stopJobById(@PathVariable String jobId) {
+        log.info "Receive request to stop job with id=${jobId}"
+
+        Job job = jobsService.getJobById(jobId)
+
+        if (job == null) {
+            return null
+        } else {
+            return jobsService.stopJob(job)
+        }
+    }
+
+    @DeleteMapping(path = '/job/active')
+    @ResponseBody Job stopActiveJob() {
+        log.info 'Receive request to stop active job'
+
+        Job job = jobsService.getActiveJob()
+
+        if (job == null) {
+            return null
+        } else {
+            return jobsService.stopJob(job)
+        }
     }
 }

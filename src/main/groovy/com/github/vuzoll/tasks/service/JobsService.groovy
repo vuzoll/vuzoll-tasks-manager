@@ -1,6 +1,5 @@
 package com.github.vuzoll.tasks.service
 
-import com.github.vuzoll.tasks.TasksManagerProperties
 import com.github.vuzoll.tasks.domain.Job
 import com.github.vuzoll.tasks.domain.JobLog
 import com.github.vuzoll.tasks.domain.JobStatus
@@ -10,8 +9,6 @@ import groovy.util.logging.Slf4j
 import org.joda.time.Period
 import org.joda.time.format.PeriodFormatter
 import org.joda.time.format.PeriodFormatterBuilder
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.task.TaskExecutor
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -30,24 +27,22 @@ class JobsService {
             .appendSeconds().appendSuffix('sec')
             .toFormatter()
 
-    @Autowired
     JobRepository jobRepository
 
-    @Autowired
-    @Qualifier('vuzollTasksExecutor')
     TaskExecutor taskExecutor
 
-    @Autowired
-    TasksManagerProperties tasksManagerProperties
+    String executorQualifier
+
+    String updateDelay
 
     @PostConstruct
     void markAbortedJobs() {
-        log.info "Marking all aborted jobs for executor [${tasksManagerProperties.executorQualifier}]..."
+        log.info "Marking all aborted jobs for executor [${executorQualifier}]..."
         Collection<Job> activeJobs = findActiveJobs()
         if (activeJobs.empty) {
-            log.info "Found no active jobs for executor [${tasksManagerProperties.executorQualifier}]"
+            log.info "Found no active jobs for executor [${executorQualifier}]"
         } else {
-            log.warn "Found ${activeJobs.size()} active jobs for executor [${tasksManagerProperties.executorQualifier}] to abort"
+            log.warn "Found ${activeJobs.size()} active jobs for executor [${executorQualifier}] to abort"
             activeJobs.each { it.status = JobStatus.ABORTED.toString() }
             jobRepository.save(activeJobs)
         }
@@ -61,8 +56,8 @@ class JobsService {
         }
 
         if (activeJobs.size() > 1) {
-            log.error("There are more than one active job for executor [${tasksManagerProperties.executorQualifier}]: ${activeJobs}")
-            throw new IllegalStateException("There are more than one active job for executor [${tasksManagerProperties.executorQualifier}]: ${activeJobs}")
+            log.error("There are more than one active job for executor [${executorQualifier}]: ${activeJobs}")
+            throw new IllegalStateException("There are more than one active job for executor [${executorQualifier}]: ${activeJobs}")
         }
 
         return activeJobs.first()
@@ -73,7 +68,7 @@ class JobsService {
     }
 
     Job getLastJob() {
-        List<Job> lastJob = jobRepository.findByExecutorQualifier(tasksManagerProperties.executorQualifier, new PageRequest(0, 1, new Sort(Sort.Direction.DESC, 'startTimestamp'))).content
+        List<Job> lastJob = jobRepository.findByExecutorQualifier(executorQualifier, new PageRequest(0, 1, new Sort(Sort.Direction.DESC, 'startTimestamp'))).content
         if (lastJob.empty) {
             return null
         } else {
@@ -82,7 +77,7 @@ class JobsService {
     }
 
     List<Job> getAllJobs() {
-        jobRepository.findByExecutorQualifier(tasksManagerProperties.executorQualifier, new Sort(Sort.Direction.DESC, 'startTimestamp'))
+        jobRepository.findByExecutorQualifier(executorQualifier, new Sort(Sort.Direction.DESC, 'startTimestamp'))
     }
 
     Job startJob(DurableJob durableJob) {
@@ -93,10 +88,15 @@ class JobsService {
         runJob(durableJob) { Job job -> executeDurableJob(job, durableJob) }
     }
 
+    Job stopJob(Job job) {
+        job.status = JobStatus.STOPPING.toString()
+        jobRepository.save(job)
+    }
+
     private Job runJob(DurableJob durableJob, Closure runAction) {
         Job job = new Job()
         job.name = durableJob.name
-        job.executorQualifier = tasksManagerProperties.executorQualifier
+        job.executorQualifier = executorQualifier
         job.status = JobStatus.STARTING.toString()
 
         job = jobRepository.save job
@@ -105,7 +105,7 @@ class JobsService {
         if (activeJob == null) {
             runAction.call(job)
         } else {
-            job.lastMessage = "There is another active job for executor [${tasksManagerProperties.executorQualifier}] with id=$activeJob.id, can't accept new one"
+            job.lastMessage = "There is another active job for executor [${executorQualifier}] with id=$activeJob.id, can't accept new one"
             log.warn job.lastMessage
             job.status = JobStatus.ABORTED.toString()
             jobRepository.save job
@@ -120,7 +120,7 @@ class JobsService {
         String message = params.message
         boolean publishRequired = params.publishRequired ?: false
 
-        if (publishRequired || job.messageLog == null || job.messageLog.empty || System.currentTimeMillis() - job.messageLog.timestamp.max() > fromDurationString(tasksManagerProperties.updateDelay)) {
+        if (publishRequired || job.messageLog == null || job.messageLog.empty || System.currentTimeMillis() - job.messageLog.timestamp.max() > fromDurationString(updateDelay)) {
             log.info "${jobLogPrefix(job.id)} ${message}"
             log.info "${jobLogPrefix(job.id)} already last ${toDurationString(System.currentTimeMillis() - job.startTimestamp)}"
 
@@ -192,12 +192,12 @@ class JobsService {
     }
 
     private Collection<Job> findActiveJobs() {
-        jobRepository.findByExecutorQualifierAndStatusIn(tasksManagerProperties.executorQualifier, [ JobStatus.RUNNING.toString(), JobStatus.STOPPING.toString() ])
+        jobRepository.findByExecutorQualifierAndStatusIn(executorQualifier, [ JobStatus.RUNNING.toString(), JobStatus.STOPPING.toString() ])
     }
 
     @Memoized
     private String jobLogPrefix(String jobId) {
-        "job=${tasksManagerProperties.executorQualifier}:${jobId}:"
+        "job=${executorQualifier}:${jobId}:"
     }
 
     static String toDurationString(long duration) {
