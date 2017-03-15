@@ -125,8 +125,6 @@ class JobsService {
         log.info "${jobLogPrefix(job.id)} ${message}"
 
         if ((publish != 'never') && (publish == 'always' || job.messageLog == null || job.messageLog.empty || System.currentTimeMillis() - job.messageLog.timestamp.max() > fromDurationString(updateDelay))) {
-            log.info "${jobLogPrefix(job.id)} already last ${toDurationString(System.currentTimeMillis() - job.startTimestamp)}"
-
             JobLog jobLog = new JobLog()
             jobLog.timestamp = System.currentTimeMillis()
             jobLog.time = LocalDateTime.now().toString()
@@ -202,9 +200,8 @@ class JobsService {
         jobRepository.findByExecutorQualifierAndStatusIn(executorQualifier, [ JobStatus.RUNNING.toString(), JobStatus.STOPPING.toString() ])
     }
 
-    @Memoized
-    private String jobLogPrefix(String jobId) {
-        "job=${executorQualifier}:${jobId}:"
+    private String jobLogPrefix(Job job) {
+        "job=${executorQualifier}:${job.id} (after ${toDurationString(System.currentTimeMillis() - job.startTimestamp)}):"
     }
 
     static String toDurationString(long duration) {
