@@ -120,11 +120,11 @@ class JobsService {
         job = jobRepository.findOne job.id
 
         String message = params.message
-        boolean publishRequired = params.publishRequired ?: false
+        String publish = params.publish ?: 'optional'
 
         log.info "${jobLogPrefix(job.id)} ${message}"
 
-        if (publishRequired || job.messageLog == null || job.messageLog.empty || System.currentTimeMillis() - job.messageLog.timestamp.max() > fromDurationString(updateDelay)) {
+        if ((publish != 'never') && (publish == 'always' || job.messageLog == null || job.messageLog.empty || System.currentTimeMillis() - job.messageLog.timestamp.max() > fromDurationString(updateDelay))) {
             log.info "${jobLogPrefix(job.id)} already last ${toDurationString(System.currentTimeMillis() - job.startTimestamp)}"
 
             JobLog jobLog = new JobLog()
