@@ -158,14 +158,20 @@ class JobsService {
 
                 job = jobRepository.findOne job.id
 
+                if (durableJob.finished) {
+                    job.lastMessage = 'finished successfully'
+                    log.info "${jobLogPrefix(job.id)} ${job.lastMessage}"
+                    break
+                }
+
                 if (job.status == JobStatus.STOPPING.toString()) {
                     job.lastMessage = 'stopped by client request'
                     log.info "${jobLogPrefix(job.id)} ${job.lastMessage}"
                     break
                 }
 
-                if (durableJob.finished) {
-                    job.lastMessage = 'finished successfully'
+                if (durableJob.timeLimit != null && System.currentTimeMillis() - job.startTimestamp > fromDurationString(durableJob.timeLimit)) {
+                    job.lastMessage = 'time limit is exceeded'
                     log.info "${jobLogPrefix(job.id)} ${job.lastMessage}"
                     break
                 }
